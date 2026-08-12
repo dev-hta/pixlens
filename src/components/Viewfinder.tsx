@@ -3,6 +3,7 @@ import { useApp } from "../store";
 import { cn } from "../utils/cn";
 import { Logo, IconSwitch, IconUpload, IconGrid, IconBurst, IconImage } from "./icons";
 import { GallerySheet } from "./GallerySheet";
+import { FocusLayer } from "./FocusLayer";
 import { SAMPLES } from "../lib/samples";
 
 export function Viewfinder() {
@@ -18,6 +19,7 @@ export function Viewfinder() {
     cameraStatus,
     cameraMessage,
     gallery,
+    params,
     onUploadFile,
     processSource,
   } = useApp();
@@ -43,7 +45,10 @@ export function Viewfinder() {
   }, [facing]);
 
   const mirror = facing === "user";
+  const evStops = (params.exposure / 100) * 2;
   camera.videoEl.style.transform = mirror ? "scaleX(-1)" : "none";
+  // Live exposure preview: brighten/darken the viewfinder to match the EV bias.
+  camera.videoEl.style.filter = `brightness(${Math.pow(2, evStops).toFixed(3)})`;
 
   const handleShutter = () => {
     capture();
@@ -78,6 +83,8 @@ export function Viewfinder() {
           <div className="absolute inset-y-0 left-2/3 w-px bg-white" />
         </div>
       )}
+
+      {cameraStatus === "live" && <FocusLayer />}
 
       {/* Top bar */}
       <div
