@@ -109,6 +109,57 @@ export class CameraManager {
     const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
     return { frames, dataUrl, width, height };
   }
+
+  /**
+   * Drive the physical lens to focus on a normalised point of interest.
+   * Uses the MediaTrack `pointsOfInterest` + `focusMode` constraints where the
+   * platform supports them (e.g. Android Chrome). Silently no-ops elsewhere so
+   * the on-screen reticle still feels responsive.
+   */
+  async applyFocus(nx: number, ny: number): Promise<boolean> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track || !track.getCapabilities) return false;
+    const caps = track.getCapabilities() as Record<string, unknown>;
+    const advanced: Record<string, unknown> = {};
+    if ("focusMode" in caps) advanced.focusMode = "manual";
+    if ("pointsOfInterest" in caps) {
+      const x = nx < 0 ? 0 : nx > 1 ? 1 : nx;
+      const y = ny < 0 ? 0 : ny > 1 ? 1 : ny;
+      advanced.pointsOfInterest = [{ x, y }];
+    }
+    if (Object.keys(advanced).length === 0) return false;
+    try {
+      await track.applyConstraints({ advanced: [advanced] });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Apply hardware exposure compensation (in EV stops) where supported.
+   * Returns false on unsupported platforms so the caller can fall back to the
+   * software exposure path.
+   */
+  async applyExposureCompensation(evStops: number): Promise<boolean> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track || !track.getCapabilities) return false;
+    const caps = track.getCapabilities() as {
+      exposureCompensation?: { min: number; max: number };
+    };
+    const cap = caps.exposureCompensation;
+    if (!cap) return false;
+    const lo = cap.min ?? -3;
+    const hi = cap.max ?? 3;
+    const v = evStops < lo ? lo : evStops > hi ? hi : evStops;
+    const constraint = { exposureCompensation: v } as unknown as MediaTrackConstraintSet;
+    try {
+      await track.applyConstraints({ advanced: [constraint] });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 
 function nextFrame(): Promise<void> {
