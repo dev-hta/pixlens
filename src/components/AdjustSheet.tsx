@@ -58,16 +58,14 @@ export function AdjustSheet() {
           <p className="mb-2 text-[10.5px] font-bold uppercase tracking-wider text-white/40">
             Sensor profile
           </p>
-          <div className="mb-5 flex flex-wrap gap-2">
+          <div className="no-scrollbar -mx-5 mb-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {SENSOR_PROFILES.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setProfile(p.id)}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors",
-                  p.id === profileId
-                    ? "bg-white text-black"
-                    : "glass text-white/70"
+                  "flex-shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors",
+                  p.id === profileId ? "bg-white text-black" : "glass text-white/70"
                 )}
               >
                 {p.name}
