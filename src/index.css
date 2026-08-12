@@ -281,3 +281,37 @@ input[type="range"].px-range::-moz-range-thumb {
   background-size: 22px 22px;
   background-position: 0 0, 0 11px, 11px -11px, -11px 0;
 }
+
+/* Tap-to-focus reticle ------------------------------------------------------*/
+.reticle-box {
+  border: 2px solid #ffd24a;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 14px rgba(255, 210, 74, 0.35);
+}
+.reticle-focus {
+  animation: focusPull 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.reticle-lock .reticle-box {
+  animation: focusPulse 1.7s ease-in-out infinite;
+}
+@keyframes focusPull {
+  0% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes focusPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 6px rgba(255, 210, 74, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 210, 74, 0.5);
+  }
+}
