@@ -4,31 +4,21 @@ import type { PipelineParams, SensorProfile } from "./image/types";
  * Sensor profiles — the PixelLens equivalent of GCam `.xml` noise-model files.
  * Each profile biases the denoise stage toward how noisy a given sensor is.
  */
+/**
+ * A library of sensor noise profiles — the PixelLens equivalent of GCam `.xml`
+ * calibration files. Newer sensors trend toward lower read/shot/chroma noise,
+ * so the denoise stage scales back automatically as you pick a cleaner body.
+ */
 export const SENSOR_PROFILES: SensorProfile[] = [
-  {
-    id: "iphone13",
-    name: "iPhone 13 · Main",
-    readNoise: 1.0,
-    shotNoise: 1.0,
-    chromaNoise: 1.0,
-    neutralGains: { r: 1.0, g: 1.0, b: 1.0 },
-  },
-  {
-    id: "pixel",
-    name: "Pixel-class · Wide",
-    readNoise: 0.82,
-    shotNoise: 0.9,
-    chromaNoise: 0.78,
-    neutralGains: { r: 1.02, g: 1.0, b: 0.97 },
-  },
-  {
-    id: "lowlight",
-    name: "Low-light · High ISO",
-    readNoise: 1.8,
-    shotNoise: 1.5,
-    chromaNoise: 1.9,
-    neutralGains: { r: 1.0, g: 1.0, b: 1.0 },
-  },
+  { id: "iphone11", name: "iPhone 11", readNoise: 1.28, shotNoise: 1.16, chromaNoise: 1.22, neutralGains: { r: 1.01, g: 1.0, b: 0.99 } },
+  { id: "iphone12", name: "iPhone 12", readNoise: 1.16, shotNoise: 1.08, chromaNoise: 1.1, neutralGains: { r: 1.01, g: 1.0, b: 0.99 } },
+  { id: "iphone13", name: "iPhone 13", readNoise: 1.0, shotNoise: 1.0, chromaNoise: 1.0, neutralGains: { r: 1.0, g: 1.0, b: 1.0 } },
+  { id: "iphone14", name: "iPhone 14", readNoise: 0.92, shotNoise: 0.95, chromaNoise: 0.9, neutralGains: { r: 1.0, g: 1.0, b: 1.0 } },
+  { id: "iphone15", name: "iPhone 15", readNoise: 0.85, shotNoise: 0.9, chromaNoise: 0.82, neutralGains: { r: 1.0, g: 1.0, b: 0.99 } },
+  { id: "iphone16", name: "iPhone 16", readNoise: 0.78, shotNoise: 0.85, chromaNoise: 0.74, neutralGains: { r: 1.0, g: 1.0, b: 0.99 } },
+  { id: "iphone17", name: "iPhone 17", readNoise: 0.7, shotNoise: 0.8, chromaNoise: 0.68, neutralGains: { r: 1.0, g: 1.0, b: 0.98 } },
+  { id: "pixel", name: "Pixel-class", readNoise: 0.82, shotNoise: 0.9, chromaNoise: 0.78, neutralGains: { r: 1.02, g: 1.0, b: 0.97 } },
+  { id: "lowlight", name: "Low-light · High ISO", readNoise: 1.8, shotNoise: 1.5, chromaNoise: 1.9, neutralGains: { r: 1.0, g: 1.0, b: 1.0 } },
 ];
 
 export const DEFAULT_PROFILE_ID = "iphone13";
