@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+/* ----------------------------------------------------------------------------
+   PixelLens design system
+---------------------------------------------------------------------------- */
+@theme {
+  --color-ink: #06070b;
+  --color-ink-2: #0b0d14;
+  --color-accent: #37e0ff;
+  --color-accent-2: #3b82f6;
+  --color-accent-3: #8b5cf6;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-strong: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --ring: rgba(55, 224, 255, 0.5);
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: radial-gradient(120% 120% at 50% -10%, #11141f 0%, #06070b 55%, #04050a 100%);
+  color: #e7e9ee;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* App shell fills the viewport, even on desktop */
+.app-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin-inline: auto;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+@media (min-width: 540px) {
+  .app-shell {
+    min-height: min(100dvh, 920px);
+    height: min(100dvh, 920px);
+    border-radius: 38px;
+    box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.8),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    margin-block: 16px;
+  }
+}
+
+/* Glassmorphism surfaces ----------------------------------------------------*/
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-strong);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  border: 1px solid var(--glass-border);
+}
+
+.inset-hi {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+}
+
+.accent-grad {
+  background: linear-gradient(115deg, var(--color-accent) 0%, var(--color-accent-2) 50%, var(--color-accent-3) 100%);
+}
+
+.text-grad {
+  background: linear-gradient(115deg, #8ff3ff 0%, #6aa8ff 55%, #c59bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Range sliders -------------------------------------------------------------*/
+input[type="range"].px-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-accent) 0%,
+    var(--color-accent-2) var(--pct, 50%),
+    rgba(255, 255, 255, 0.12) var(--pct, 50%),
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  outline: none;
+}
+input[type="range"].px-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 0 0 4px rgba(55, 224, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+input[type="range"].px-range::-webkit-slider-thumb:active {
+  transform: scale(1.18);
+}
+input[type="range"].px-range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 0 0 4px rgba(55, 224, 255, 0.18);
+  cursor: pointer;
+}
+
+/* Buttons -------------------------------------------------------------------*/
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #eef0f5;
+  transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease;
+}
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* Shutter -------------------------------------------------------------------*/
+.shutter-ring {
+  background: conic-gradient(from -90deg, #fff 0deg, #fff var(--cap, 270deg), rgba(255,255,255,0.18) var(--cap,270deg));
+}
+
+/* Utilities -----------------------------------------------------------------*/
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animations ----------------------------------------------------------------*/
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-pop {
+  animation: pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shutterFlash {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.animate-flash {
+  animation: shutterFlash 0.4s ease-out forwards;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+.animate-scan {
+  animation: scanline 1.4s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin 1.1s linear infinite;
+}
+
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-pulse-soft {
+  animation: pulseSoft 1.8s ease-in-out infinite;
+}
+
+@keyframes gridDrift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 48px;
+  }
+}
+
+.checker {
+  background-image: linear-gradient(45deg, #14161f 25%, transparent 25%),
+    linear-gradient(-45deg, #14161f 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #14161f 75%),
+    linear-gradient(-45deg, transparent 75%, #14161f 75%);
+  background-size: 22px 22px;
+  background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+}
