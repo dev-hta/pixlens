@@ -39,22 +39,117 @@ export class CameraManager {
     return { width: this.video.videoWidth, height: this.video.videoHeight };
   }
 
+  /**
+   * Start the camera with a robust strategy that always selects the PRIMARY
+   * (main / wide) sensor — never ultra-wide, telephoto, or macro — regardless
+   * of phone model.
+   *
+   * Strategy for "environment" (rear) facing:
+   *   1. Enumerate devices → pick the **first** rear-facing camera (OS always
+   *      lists the primary sensor first) → request by exact `deviceId`.
+   *   2. Fallback: `facingMode: { exact: "environment" }` — strict constraint.
+   *   3. Fallback: `facingMode: "environment"` — soft preference.
+   *
+   * For "user" (front) facing, a soft preference is sufficient since phones
+   * typically have only one front camera.
+   */
   async start(facing: Facing): Promise<void> {
     this.stop();
     if (!cameraSupported()) {
       throw new Error("Camera API unavailable in this browser.");
     }
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: facing,
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-      },
-      audio: false,
-    });
-    this.stream = stream;
-    this.video.srcObject = stream;
+
+    const baseVideo: MediaTrackConstraints = {
+      width: { ideal: 4032 },
+      height: { ideal: 3024 },
+    };
+
+    if (facing === "environment") {
+      // Try to get the primary rear camera by deviceId first
+      const primaryId = await this.findPrimaryRearCamera();
+      const attempts: MediaTrackConstraints[] = [];
+
+      if (primaryId) {
+        // Attempt 1: exact deviceId of the first rear camera (= main sensor)
+        attempts.push({ ...baseVideo, deviceId: { exact: primaryId } });
+      }
+      // Attempt 2: strict rear constraint
+      attempts.push({ ...baseVideo, facingMode: { exact: "environment" } });
+      // Attempt 3: soft preference (last resort)
+      attempts.push({ ...baseVideo, facingMode: "environment" });
+
+      let stream: MediaStream | null = null;
+      for (const videoConstraints of attempts) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: videoConstraints,
+            audio: false,
+          });
+          break;
+        } catch {
+          // Try next constraint set
+        }
+      }
+      if (!stream) {
+        throw new Error("Could not access the rear camera.");
+      }
+      this.stream = stream;
+    } else {
+      // Front camera — soft preference is fine
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { ...baseVideo, facingMode: "user" },
+        audio: false,
+      });
+      this.stream = stream;
+    }
+
+    this.video.srcObject = this.stream;
     await this.video.play();
+  }
+
+  /**
+   * Enumerate video input devices and return the deviceId of the first
+   * rear-facing ("environment") camera. The OS and browser consistently list
+   * the primary / main sensor first, so the first match is always the one we
+   * want. Returns `null` if enumeration is unavailable or no rear camera is
+   * found.
+   */
+  private async findPrimaryRearCamera(): Promise<string | null> {
+    try {
+      // We need a temporary stream to get labelled device info on some browsers
+      const tempStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      // Stop the temp stream immediately
+      tempStream.getTracks().forEach((t) => t.stop());
+
+      const rearCameras = devices.filter(
+        (d) =>
+          d.kind === "videoinput" &&
+          // Check label for rear/back/environment hints
+          (/back|rear|environment/i.test(d.label) ||
+            // On Android Chrome, the facing mode info may be in the label
+            /camera\s*0/i.test(d.label) ||
+            // Samsung labels like "Camera 1, facing back"
+            /facing back/i.test(d.label))
+      );
+
+      if (rearCameras.length > 0) {
+        return rearCameras[0].deviceId;
+      }
+
+      // If no label match, try to identify by getting capabilities
+      // The first videoinput is almost always the primary camera
+      const allVideoInputs = devices.filter((d) => d.kind === "videoinput");
+      if (allVideoInputs.length > 0) {
+        return allVideoInputs[0].deviceId;
+      }
+    } catch {
+      // Enumeration failed — caller will fall back to facingMode constraints
+    }
+    return null;
   }
 
   switchFacing(facing: Facing): Promise<void> {
